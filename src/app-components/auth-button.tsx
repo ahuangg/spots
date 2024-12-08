@@ -2,6 +2,8 @@
 
 import { signIn, signOut, useSession } from "next-auth/react";
 import { Button } from "../components/ui/button";
+import { Github } from 'lucide-react';
+
 const AuthButton = () => {
     const { data: session } = useSession();
 
@@ -13,7 +15,10 @@ const AuthButton = () => {
         );
     }
     return (
-        <Button onClick={() => signIn("github")}>Sign in with GitHub</Button>
+        <Button onClick={() => signIn("github")}>
+            Sign in with GitHub
+            <Github />
+        </Button>
     );
 };
 
