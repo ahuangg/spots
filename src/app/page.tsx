@@ -1,9 +1,10 @@
-import { Button } from "@/components/ui/button";
+"use client";
+import SubmissionButton from "@/app-components/SubmissionButton";
 
 export default function Page() {
     return (
         <div>
-            <Button>Click</Button>
+            <SubmissionButton />
         </div>
     );
 }
