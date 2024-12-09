@@ -12,9 +12,13 @@ const Page: React.FC = () => {
     };
 
     return (
-        <div className="relative w-screen h-screen">
+        <div className="relative w-screen h-screen overflow-hidden">
             <MapComponent onMapLoad={handleMapLoad} />
-            {isMapLoaded && <ActionBar />}
+            {isMapLoaded && (
+                <div className="absolute top-4 right-4 z-10">
+                    <ActionBar />
+                </div>
+            )}
         </div>
     );
 };

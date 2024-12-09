@@ -6,7 +6,7 @@ import SubmissionButton from "@/app-components/submission-button";
 
 const ActionBar = () => {
     return (
-        <div className="absolute top-4 right-4 z-10 flex gap-2">
+        <div className="absolute right-4 z-20 flex gap-2">
             <SubmissionButton />
             <AuthButton />
             <GithubStatsButton />
