@@ -1,14 +1,22 @@
 "use client";
-import AuthButton from "@/app-components/auth-button";
-import SubmissionButton from "@/app-components/submission-button";
-import GithubStatsButton from "@/app-components/github-stats-button";
 
-export default function Page() {
+import { useState } from "react";
+import MapComponent from "@/app-components/map";
+import ActionBar from "@/app-components/action-bar";
+
+const Page: React.FC = () => {
+    const [isMapLoaded, setIsMapLoaded] = useState<boolean>(false);
+
+    const handleMapLoad = (loaded: boolean) => {
+        setIsMapLoaded(loaded);
+    };
+
     return (
-        <div>
-            <SubmissionButton />
-            <AuthButton />
-            <GithubStatsButton />
+        <div className="relative w-screen h-screen">
+            <MapComponent onMapLoad={handleMapLoad} />
+            {isMapLoaded && <ActionBar />}
         </div>
     );
-}
+};
+
+export default Page;
