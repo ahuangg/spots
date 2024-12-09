@@ -1,44 +1,37 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
-import { useSession } from "next-auth/react";
 import { useState } from "react";
+import { UserData, GithubLanguage } from "@/types/user";
 
-interface GithubLanguage {
-    language: string;
-    percentage: string;
+interface GithubStatsButtonProps {
+    userData: UserData | null;
 }
 
-const GithubStatsButton = () => {
-    const { data: session, status } = useSession();
+const GithubStatsButton: React.FC<GithubStatsButtonProps> = ({ userData }) => {
     const [stats, setStats] = useState<GithubLanguage[] | null>(null);
-    const [loading, setLoading] = useState(false);
+    const [loadingStats, setLoadingStats] = useState(false);
 
     const fetchGithubStats = async () => {
-        if (!session?.user?.username) {
-            return;
-        }
+        if (!userData?.username) return;
 
         try {
-            setLoading(true);
+            setLoadingStats(true);
             const response = await axios.get(
-                `/api/github/user/${session.user.username}`
+                `/api/github/user/${userData.username}`
             );
             setStats(response.data.languages);
         } catch (error) {
             console.error(error);
         } finally {
-            setLoading(false);
+            setLoadingStats(false);
         }
     };
 
-    if (status === "loading") return null;
-    if (!session) return null;
-
     return (
         <div>
-            <Button onClick={fetchGithubStats} disabled={loading}>
-                {loading ? "Loading..." : "Get My GitHub Stats"}
+            <Button onClick={fetchGithubStats} disabled={loadingStats}>
+                {loadingStats ? "Loading..." : "Get My GitHub Stats"}
             </Button>
             <div className="flex flex-col">
                 {stats && stats.length > 0 && (

@@ -30,7 +30,6 @@ const MapComponent: React.FC<MapComponentProps> = ({ onMapLoad }) => {
                 projection={{
                     name: "mercator",
                 }}
-                dragRotate={false}
                 minZoom={MIN_MAP_ZOOM}
                 maxZoom={MAX_MAP_ZOOM}
                 renderWorldCopies={true}
@@ -41,7 +40,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ onMapLoad }) => {
                 }}
                 onLoad={handleLoad}
             >
-                <NavigationControl position="bottom-left" />
+                <NavigationControl position="bottom-left" showCompass={false} />
             </Map>
         </div>
     );
