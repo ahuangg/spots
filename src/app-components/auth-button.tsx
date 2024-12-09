@@ -4,16 +4,15 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import { Button } from "../components/ui/button";
 
 const AuthButton = () => {
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
 
-    if (session?.user) {
-        return (
-            <Button onClick={() => signOut()}>
-                Sign out {session.user.username}
-            </Button>
-        );
-    }
-    return (
+    if (status === "loading") return null;
+
+    return session?.user ? (
+        <Button onClick={() => signOut()}>
+            Sign out {session.user.username}
+        </Button>
+    ) : (
         <Button onClick={() => signIn("github")}>Sign in with GitHub</Button>
     );
 };
