@@ -1,0 +1,25 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model User {
+  id            Int      @id  
+  username      String   @unique
+  languageStats Json[]   @default([])
+  h3Index       String?  @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model H3Cell {
+  index         String   @id
+  languageStats Json[]   @default([])
+  totalUsers    Int      @default(0)
+  createdAt     DateTime @default(now())
+}
