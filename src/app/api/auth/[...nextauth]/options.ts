@@ -1,0 +1,35 @@
+import GitHub from "next-auth/providers/github";
+import { AuthOptions } from "next-auth";
+
+export const authOptions: AuthOptions = {
+    providers: [
+        GitHub({
+            clientId: process.env.GITHUB_ID as string,
+            clientSecret: process.env.GITHUB_SECRET as string,
+            authorization: {
+                params: {
+                    scope: "read:user repo",
+                },
+            },
+        }),
+    ],
+    callbacks: {
+        async jwt({ token, account, profile }) {
+            if (account && profile) {
+                token.accessToken = account.access_token;
+                token.username = (profile as { login: string }).login;
+            }
+            return token;
+        },
+        async session({ session, token }) {
+            if (session.user) {
+                session.accessToken = token.accessToken as string;
+                session.user.username = token.username as string;
+            }
+            return session;
+        },
+    },
+    pages: {
+        error: "/error",
+    },
+};
