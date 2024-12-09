@@ -33,7 +33,8 @@ export async function GET(
             );
         }
 
-        const userId = parseInt(resolvedParams.id);
+        const userId = parseInt(resolvedParams.id, 10);
+
         if (isNaN(userId) || session.user.githubId !== userId) {
             return NextResponse.json(
                 { error: "Unauthorized" },

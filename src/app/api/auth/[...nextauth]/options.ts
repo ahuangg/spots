@@ -1,6 +1,5 @@
 import GitHub from "next-auth/providers/github";
 import { AuthOptions } from "next-auth";
-import { prisma } from "@/lib/prisma";
 
 export const authOptions: AuthOptions = {
     providers: [
@@ -15,30 +14,6 @@ export const authOptions: AuthOptions = {
         }),
     ],
     callbacks: {
-        async signIn({ profile }) {
-            if (!profile) return false;
-
-            try {
-                const githubId = (profile as { id: number }).id;
-                const username = (profile as { login: string }).login;
-
-                await prisma.user.upsert({
-                    where: { id: githubId },
-                    update: {
-                        username: username,
-                    },
-                    create: {
-                        id: githubId,
-                        username: username,
-                        languageStats: [],
-                    },
-                });
-                return true;
-            } catch (error) {
-                console.error(error);
-                return false;
-            }
-        },
         async jwt({ token, account, profile }) {
             if (account && profile) {
                 token.accessToken = account.access_token;
