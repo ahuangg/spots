@@ -19,6 +19,7 @@ export function useUser() {
 
     useEffect(() => {
         const fetchUser = async () => {
+            if (status === "loading") return;
             if (!session?.user?.githubId) {
                 setLoading(false);
                 return;
@@ -36,11 +37,7 @@ export function useUser() {
             }
         };
 
-        if (status === "authenticated") {
-            fetchUser();
-        } else if (status === "unauthenticated") {
-            setLoading(false);
-        }
+        fetchUser();
     }, [session, status]);
 
     return { userData, loading };
