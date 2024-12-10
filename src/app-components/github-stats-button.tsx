@@ -21,6 +21,10 @@ const GithubStatsButton: React.FC<GithubStatsButtonProps> = ({ userData }) => {
                 `/api/github/user/${userData.username}`
             );
             setStats(response.data.languages);
+
+            await axios.post(`/api/users/${userData.id}/language`, {
+                languageStats: response.data.languages,
+            });
         } catch (error) {
             console.error(error);
         } finally {

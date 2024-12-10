@@ -12,9 +12,9 @@ interface ActionBarProps {
 const ActionBar: React.FC<ActionBarProps> = ({ userData }) => {
     return (
         <div className="absolute right-4 z-20 flex gap-2">
-            <SubmissionButton />
+            {userData && <SubmissionButton userId={userData.id} />}
+            {userData &&<GithubStatsButton userData={userData} />}
             <AuthButton />
-            <GithubStatsButton userData={userData} />
         </div>
     );
 };

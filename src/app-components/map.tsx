@@ -35,6 +35,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ onMapLoad }) => {
                 renderWorldCopies={true}
                 mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
                 attributionControl={false}
+                dragRotate={false}
                 onMove={(evt) => {
                     setViewState(evt.viewState);
                 }}
