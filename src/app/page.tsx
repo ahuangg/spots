@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import MapComponent from "@/app-components/map";
-import ActionBar from "@/app-components/action-bar";
+import Header from "@/app-components/header";
 import { useUser } from "@/hooks/useUser";
 
 const Page: React.FC = () => {
@@ -17,12 +17,12 @@ const Page: React.FC = () => {
 
     return (
         <div className="relative w-screen h-screen overflow-hidden">
-            <MapComponent onMapLoad={handleMapLoad} />
             {isMapLoaded && (
-                <div className="absolute top-4 right-4 z-10">
-                    <ActionBar userData={userData} />
+                <div className="absolute top-5 left-1/2 transform -translate-x-1/2 z-10 max-w-4xl w-full px-4 ">
+                    <Header userData={userData} />
                 </div>
             )}
+            <MapComponent onMapLoad={handleMapLoad} />
         </div>
     );
 };
