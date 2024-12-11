@@ -40,6 +40,14 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MapPinPlus } from "lucide-react";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const InfoDialog = ({ userData }: { userData: UserData | null }) => {
     const { toast } = useToast();
@@ -87,8 +95,19 @@ const InfoDialog = ({ userData }: { userData: UserData | null }) => {
 
     return (
         <Dialog open={isDialogOpen} onOpenChange={handleDialogChange}>
-            <DialogTrigger asChild>
-                <Button>Point</Button>
+            <DialogTrigger>
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost">
+                                <MapPinPlus />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Manage Point</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
@@ -98,23 +117,30 @@ const InfoDialog = ({ userData }: { userData: UserData | null }) => {
                     </DialogDescription>
                 </DialogHeader>
                 <CurrentContent userData={userData} />
-                <Suspense fallback={<div>Loading...</div>}>
-                    <UpdateContent
-                        formRef={formRef}
+                <Card className="p-3">
+                    <CardHeader className="p-0">
+                        <CardTitle className="p-0 ">Update Point</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        <Suspense fallback={<div>Loading...</div>}>
+                            <UpdateContent
+                                formRef={formRef}
+                                location={location}
+                                setLocation={setLocation}
+                                setLanguage={setLanguage}
+                                handleFormSubmit={handleFormSubmit}
+                                languages={memoizedLanguages}
+                            />
+                        </Suspense>
+                    </CardContent>
+                    <Footer
+                        toast={toast}
+                        handleDialogChange={handleDialogChange}
                         location={location}
-                        setLocation={setLocation}
-                        setLanguage={setLanguage}
+                        language={language}
                         handleFormSubmit={handleFormSubmit}
-                        languages={memoizedLanguages}
                     />
-                </Suspense>
-                <Footer
-                    toast={toast}
-                    handleDialogChange={handleDialogChange}
-                    location={location}
-                    language={language}
-                    handleFormSubmit={handleFormSubmit}
-                />
+                </Card>
             </DialogContent>
         </Dialog>
     );
@@ -122,7 +148,6 @@ const InfoDialog = ({ userData }: { userData: UserData | null }) => {
 
 const CurrentContent = ({ userData }: { userData: UserData | null }) => (
     <div>
-        <h1>current</h1>
         <div className="flex flex-row items-center w-full gap-3">
             <Avatar>
                 <AvatarImage
@@ -131,9 +156,15 @@ const CurrentContent = ({ userData }: { userData: UserData | null }) => (
                 />
                 <AvatarFallback>CN</AvatarFallback>
             </Avatar>
-            <div>
-                <div>{userData?.h3Index || "no location"}</div>
-                <div>{userData?.favoriteLanguage || "no language"}</div>
+            <div className="grid grid-cols-2 text-sm gap-0">
+                <p>{"Location: "}</p>
+                <p className="text-muted-foreground">
+                    {userData?.h3Index || "undefined"}
+                </p>
+                <p>Language: </p>
+                <p className="text-muted-foreground">
+                    {userData?.favoriteLanguage || "no language"}
+                </p>
             </div>
         </div>
     </div>
@@ -172,35 +203,40 @@ const UpdateContent = ({
     };
 
     return (
-        <div>
-            <h1>Update</h1>
-            <form
-                ref={formRef}
-                onSubmit={handleFormSubmit}
-                className="grid gap-4 py-4"
-            >
-                <div className="grid grid-cols-3 items-center gap-2">
-                    <Label htmlFor="location" className="self-center">
-                        Location
-                    </Label>
-                    <Input
-                        value={location}
-                        placeholder="Get Location"
-                        className="col-span-1"
-                        readOnly
-                    />
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={handleGetLocation}
-                    >
-                        Get
-                    </Button>
-                </div>
-                <div className="grid grid-cols-3 items-center gap-2">
-                    <Label htmlFor="language" className="self-center">
-                        Language
-                    </Label>
+        <form
+            ref={formRef}
+            onSubmit={handleFormSubmit}
+            className="grid gap-4 py-4"
+        >
+            <div className="grid grid-cols-5 items-center gap-2">
+                <Label
+                    htmlFor="location"
+                    className="flex col-span-1 justify-end"
+                >
+                    Location
+                </Label>
+                <Input
+                    value={location}
+                    placeholder="Get Location"
+                    className="col-span-3"
+                    readOnly
+                />
+                <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleGetLocation}
+                    className="col-span-1"
+                >
+                    Get
+                </Button>
+
+                <Label
+                    htmlFor="language"
+                    className=" col-span-1 flex justify-end"
+                >
+                    Language
+                </Label>
+                <div className="col-span-4">
                     <Select onValueChange={setLanguage}>
                         <SelectTrigger className="w-full">
                             <SelectValue placeholder="Select a language" />
@@ -212,10 +248,10 @@ const UpdateContent = ({
                                 </SelectItem>
                             ))}
                         </SelectContent>
-                    </Select>
+                    </Select>{" "}
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
     );
 };
 

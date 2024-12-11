@@ -50,7 +50,7 @@ const H3Layer = () => {
             LANGUAGE_COLOR[cell.dominantLanguage as keyof typeof LANGUAGE_COLOR]
                 ?.color || "#000000";
 
-        const opacity = Math.max(0.3, Math.min(1, cell.totalUsers / 100));
+        const opacity = Math.max(0.3, Math.min(1, cell.totalUsers / 20));
 
         return {
             type: "Feature",
