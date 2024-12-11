@@ -1,16 +1,7 @@
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
+import { UserData } from "@/types/user";
 import axios from "axios";
-
-interface UserData {
-    id: number;
-    username: string;
-    languageStats: Array<{
-        language: string;
-        percentage: string;
-    }>;
-    h3Index: string | null;
-}
 
 export function useUser() {
     const { data: session, status } = useSession();

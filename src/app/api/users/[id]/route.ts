@@ -14,6 +14,7 @@ const userSchema = z.object({
     username: z.string(),
     languageStats: z.array(languageSchema),
     h3Index: z.string().nullable(),
+    favoriteLanguage: z.string().nullable(),
     createdAt: z.date(),
     updatedAt: z.date(),
 });

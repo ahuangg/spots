@@ -6,6 +6,9 @@ export interface UserData {
         percentage: string;
     }>;
     h3Index: string | null;
+    favoriteLanguage: string | null;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface GithubLanguage {
