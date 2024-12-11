@@ -1,25 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
-import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 
-const languageSchema = z.object({
-    language: z.string(),
-    percentage: z.string(),
-});
-
-const userSchema = z.object({
-    id: z.number(),
-    username: z.string(),
-    languageStats: z.array(languageSchema),
-    h3Index: z.string().nullable(),
-    favoriteLanguage: z.string().nullable(),
-    createdAt: z.date(),
-    updatedAt: z.date(),
-});
-
-export async function GET(
+export async function POST(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
@@ -43,24 +27,27 @@ export async function GET(
             );
         }
 
-        let user = await prisma.user.findUnique({
+        const { languageStats } = await request.json();
+
+        const updatedLanguageStats = languageStats
+            .map((lang: { language: string; percentage: string }) => ({
+                language: lang.language,
+                percentage: lang.percentage,
+            }))
+            .filter(
+                (lang: { language: string; percentage: string }) =>
+                    lang.language && lang.percentage
+            );
+
+        await prisma.user.update({
             where: { id: userId },
+            data: { languageStats: updatedLanguageStats },
         });
 
-        if (!user) {
-            user = await prisma.user.create({
-                data: {
-                    id: userId,
-                    username: session.user.username || "",
-                    languageStats: [],
-                },
-            });
-        }
-
-        const validatedUser = userSchema.parse(user);
-        return NextResponse.json(validatedUser);
+        return NextResponse.json({
+            message: "User language stats updated successfully.",
+        });
     } catch (error) {
-		console.log(error)
         return NextResponse.json({ error: error }, { status: 500 });
     }
 }

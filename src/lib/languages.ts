@@ -2665,3 +2665,5 @@ export const LANGUAGE_COLOR = {
         url: "https://github.com/trending?l=Zimpl",
     },
 };
+
+export const LANGUAGES = Object.keys(LANGUAGE_COLOR);
