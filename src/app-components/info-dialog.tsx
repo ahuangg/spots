@@ -1,4 +1,25 @@
+import { Suspense, useMemo, useRef, useState } from "react";
+
+import axios from "axios";
+import { useAtom } from "jotai";
+import { latLngToCell } from "h3-js";
+
+import { UserData } from "@/types/user";
+import { LANGUAGES } from "@/lib/languages";
+import { refreshAtom } from "@/jotai/atoms";
+import { H3_RESOLUTION } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import {
     Dialog,
     DialogContent,
@@ -19,24 +40,6 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useToast } from "@/hooks/use-toast";
-import { useState, useRef, useMemo, Suspense } from "react";
-import { UserData } from "@/types/user";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { latLngToCell } from "h3-js";
-import { LANGUAGES } from "@/lib/languages";
-import axios from "axios";
-
-const H3_RESOLUTION = 9;
 
 const InfoDialog = ({ userData }: { userData: UserData | null }) => {
     const { toast } = useToast();
@@ -44,6 +47,7 @@ const InfoDialog = ({ userData }: { userData: UserData | null }) => {
     const [location, setLocation] = useState("");
     const [language, setLanguage] = useState("");
     const formRef = useRef<HTMLFormElement>(null);
+    const [, setRefresh] = useAtom(refreshAtom);
 
     const handleDialogChange = (open: boolean) => {
         setIsDialogOpen(open);
@@ -71,6 +75,7 @@ const InfoDialog = ({ userData }: { userData: UserData | null }) => {
                 description:
                     response.data.message || "Data saved successfully!",
             });
+            setRefresh((prev) => !prev);
         } catch {
             toast({
                 description: "Failed to save data. Please try again.",

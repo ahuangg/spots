@@ -5,6 +5,9 @@ export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
 }
 
+
+export const H3_RESOLUTION = 5;
+
 export const MIN_MAP_ZOOM = 2;
 export const MAX_MAP_ZOOM = 14;
 
