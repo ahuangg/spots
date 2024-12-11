@@ -12,13 +12,27 @@ model User {
   username      String   @unique
   languageStats Json[]   @default([])
   h3Index       String?  
+  favoriteLanguage String? 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
 
 model H3Cell {
-  index         String   @id
-  languageStats Json[]   @default([])
-  totalUsers    Int      @default(0)
-  createdAt     DateTime @default(now())
+  index              String                    @id
+  totalUsers         Int                       @default(0)
+  dominantLanguage   String?
+  createdAt          DateTime                  @default(now())
+  languageStats      H3CellLanguageStat[]
+
+  @@index([dominantLanguage])
+}
+
+model H3CellLanguageStat {
+  id           Int      @id @default(autoincrement())
+  h3Cell       H3Cell   @relation(fields: [h3CellIndex], references: [index])
+  h3CellIndex  String   
+  language     String
+  count        Int      @default(0)
+
+  @@unique([h3CellIndex, language])
 }
