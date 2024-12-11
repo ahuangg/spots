@@ -99,7 +99,7 @@ const InfoDialog = ({ userData }: { userData: UserData | null }) => {
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Button variant="ghost">
+                            <Button size="icon" variant="ghost">
                                 <MapPinPlus />
                             </Button>
                         </TooltipTrigger>
