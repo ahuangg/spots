@@ -1,12 +1,12 @@
 import { Suspense, useMemo, useRef, useState } from "react";
 
 import axios from "axios";
-import { useSetAtom } from "jotai";
+import { useSetAtom, useAtom } from "jotai";
 import { latLngToCell, cellToLatLng } from "h3-js";
 
 import { UserData } from "@/types/user";
 import { LANGUAGES } from "@/lib/languages";
-import { locationAtom } from "@/jotai/atoms";
+import { locationAtom, refreshAtom } from "@/jotai/atoms";
 import { H3_RESOLUTION } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
@@ -59,6 +59,7 @@ const InfoDialog = ({ userData, setUserData }: InfoDialogProps) => {
     const [language, setLanguage] = useState("");
     const formRef = useRef<HTMLFormElement>(null);
     const setMapLocation = useSetAtom(locationAtom);
+    const [refresh, setRefresh] = useAtom(refreshAtom);
 
     const handleDialogChange = (open: boolean) => {
         setIsDialogOpen(open);
@@ -94,6 +95,8 @@ const InfoDialog = ({ userData, setUserData }: InfoDialogProps) => {
                 lng,
                 zoom: 10,
             });
+
+            setRefresh(!refresh);
 
             toast({
                 description:
