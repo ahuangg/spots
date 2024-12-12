@@ -50,6 +50,7 @@ export async function POST(
 
             const oldH3Index = user.h3Index;
             const oldFavoriteLanguage = user.favoriteLanguage;
+            const isSameCell = oldH3Index === h3Index;
 
             await prisma.user.update({
                 where: { id: userId },
@@ -78,25 +79,15 @@ export async function POST(
                     },
                 });
 
-                if (updatedStat && updatedStat.count === 0) {
-                    await prisma.h3CellLanguageStat.deleteMany({
+                if (updatedStat && updatedStat.count <= 0) {
+                    await prisma.h3CellLanguageStat.delete({
                         where: {
-                            h3CellIndex: oldH3Index,
-                            language: oldFavoriteLanguage,
+                            id: updatedStat.id,
                         },
                     });
+                }
 
-                    const remainingStats =
-                        await prisma.h3CellLanguageStat.findMany({
-                            where: { h3CellIndex: oldH3Index },
-                        });
-
-                    if (remainingStats.length === 0) {
-                        await prisma.h3Cell.delete({
-                            where: { index: oldH3Index },
-                        });
-                    }
-                } else {
+                if (!isSameCell) {
                     await prisma.h3Cell.update({
                         where: { index: oldH3Index },
                         data: {
@@ -105,18 +96,18 @@ export async function POST(
                             },
                         },
                     });
+                }
 
-                    const languageStats =
-                        await prisma.h3CellLanguageStat.findMany({
-                            where: { h3CellIndex: oldH3Index },
-                        });
+                const oldCellStats = await prisma.h3CellLanguageStat.findMany({
+                    where: { h3CellIndex: oldH3Index },
+                });
 
-                    const dominantLanguage = languageStats.reduce(
-                        (prev, current) => {
-                            return (prev.count || 0) > (current.count || 0)
+                if (oldCellStats.length > 0) {
+                    const dominantLanguage = oldCellStats.reduce(
+                        (prev, current) =>
+                            (prev.count || 0) > (current.count || 0)
                                 ? prev
-                                : current;
-                        }
+                                : current
                     );
 
                     await prisma.h3Cell.update({
@@ -124,6 +115,10 @@ export async function POST(
                         data: {
                             dominantLanguage: dominantLanguage.language,
                         },
+                    });
+                } else {
+                    await prisma.h3Cell.delete({
+                        where: { index: oldH3Index },
                     });
                 }
             }
@@ -174,25 +169,23 @@ export async function POST(
                     });
                 }
 
-                await prisma.h3Cell.update({
-                    where: { index: h3Index },
-                    data: {
-                        totalUsers: {
-                            increment: 1,
+                if (!isSameCell) {
+                    await prisma.h3Cell.update({
+                        where: { index: h3Index },
+                        data: {
+                            totalUsers: {
+                                increment: 1,
+                            },
                         },
-                    },
-                });
+                    });
+                }
 
-                const languageStats = await prisma.h3CellLanguageStat.findMany({
+                const newCellStats = await prisma.h3CellLanguageStat.findMany({
                     where: { h3CellIndex: h3Index },
                 });
 
-                const dominantLanguage = languageStats.reduce(
-                    (prev, current) => {
-                        return (prev.count || 0) > (current.count || 0)
-                            ? prev
-                            : current;
-                    }
+                const dominantLanguage = newCellStats.reduce((prev, current) =>
+                    (prev.count || 0) > (current.count || 0) ? prev : current
                 );
 
                 await prisma.h3Cell.update({
