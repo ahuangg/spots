@@ -11,6 +11,7 @@ import {
 import { useSetAtom } from "jotai";
 import { locationAtom } from "@/jotai/atoms";
 import { cellToLatLng } from "h3-js";
+import { cn } from "@/lib/utils";
 
 interface UserStatusProps {
     userData: UserData;
@@ -31,7 +32,14 @@ const UserStatus: React.FC<UserStatusProps> = ({ userData }) => {
     };
 
     return (
-        <div className="flex items-center gap-1">
+        <div
+            className={cn(
+                "nav-items flex items-center",
+                document.body.classList.contains("search-expanded")
+                    ? "hidden sm:flex"
+                    : "flex"
+            )}
+        >
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
@@ -40,12 +48,7 @@ const UserStatus: React.FC<UserStatusProps> = ({ userData }) => {
                             className="flex items-center gap-2 px-2 h-8"
                             onClick={handleLocationClick}
                         >
-                            <span className="text-muted-foreground sm:hidden">
-                                {userData?.h3Index
-                                    ? userData.h3Index.slice(0, 4)
-                                    : "None"}
-                            </span>
-                            <span className="text-muted-foreground hidden sm:block">
+                            <span className="text-muted-foreground">
                                 {userData?.h3Index || "None"}
                             </span>
                         </Button>
@@ -63,17 +66,7 @@ const UserStatus: React.FC<UserStatusProps> = ({ userData }) => {
                             variant="ghost"
                             className="flex items-center gap-2 px-2 h-8"
                         >
-                            <div
-                                className="w-2 h-2 rounded-full sm:hidden"
-                                style={{
-                                    backgroundColor: userData.favoriteLanguage
-                                        ? LANGUAGE_COLOR[
-                                              userData.favoriteLanguage as keyof typeof LANGUAGE_COLOR
-                                          ]?.color ?? "#6e7681"
-                                        : "#6e7681",
-                                }}
-                            />
-                            <div className="hidden sm:flex items-center gap-2">
+                            <div className="flex items-center gap-2">
                                 <div
                                     className="w-2 h-2 rounded-full"
                                     style={{
