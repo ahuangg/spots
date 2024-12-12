@@ -20,8 +20,12 @@ interface SearchResult {
     lon: string;
 }
 
-const LocationSearch = () => {
-    const [isExpanded, setIsExpanded] = useState(false);
+interface LocationSearchProps {
+    isExpanded: boolean;
+    setIsExpanded: (expanded: boolean) => void;
+}
+
+const LocationSearch = ({ isExpanded, setIsExpanded }: LocationSearchProps) => {
     const [searchQuery, setSearchQuery] = useState("");
     const [results, setResults] = useState<SearchResult[]>([]);
     const [loading, setLoading] = useState(false);
@@ -86,12 +90,12 @@ const LocationSearch = () => {
     };
 
     return (
-        <div className="relative" ref={searchRef}>
-            <div className="flex items-center">
+        <div className="relative w-full" ref={searchRef}>
+            <div className="flex items-center w-full">
                 <div
                     className={cn(
                         "relative transition-all duration-300 ease-in-out",
-                        isExpanded ? "w-[300px]" : "w-9"
+                        isExpanded ? "w-full sm:w-[300px]" : "w-9"
                     )}
                 >
                     {!isExpanded ? (
@@ -127,7 +131,6 @@ const LocationSearch = () => {
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 autoFocus
-                                onFocus={() => setShowResults(true)}
                             />
                         </div>
                     )}

@@ -71,3 +71,13 @@ body {
         @apply bg-background text-foreground;
     }
 }
+
+@layer utilities {
+    .search-expanded {
+        @apply overflow-hidden;
+    }
+    
+    .search-expanded .nav-items {
+        @apply hidden sm:flex;
+    }
+}
