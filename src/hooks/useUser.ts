@@ -31,5 +31,5 @@ export function useUser() {
         fetchUser();
     }, [session, status]);
 
-    return { userData, loading };
+    return { userData, loading, setUserData };
 }
