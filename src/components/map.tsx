@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
-import Map, { NavigationControl } from "react-map-gl";
+import Map, { NavigationControl, ViewStateChangeEvent } from "react-map-gl";
 import { useAtomValue } from "jotai";
 import { locationAtom } from "@/jotai/atoms";
 import * as d3 from "d3-ease";
@@ -23,11 +23,17 @@ interface MapComponentProps {
 
 const MapComponent: React.FC<MapComponentProps> = ({ onMapLoad }) => {
     const [viewState, setViewState] = useState(INITIAL_MAP_VIEW_STATE);
+    const [zoom, setZoom] = useState(INITIAL_MAP_VIEW_STATE.zoom);
     const { theme } = useTheme();
     const location = useAtomValue(locationAtom);
 
     const handleLoad = () => {
         onMapLoad(true);
+    };
+
+    const handleMove = (evt: ViewStateChangeEvent) => {
+        setViewState(evt.viewState);
+        setZoom(evt.viewState.zoom);
     };
 
     useEffect(() => {
@@ -62,13 +68,11 @@ const MapComponent: React.FC<MapComponentProps> = ({ onMapLoad }) => {
                 mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
                 attributionControl={false}
                 dragRotate={false}
-                onMove={(evt) => {
-                    setViewState(evt.viewState);
-                }}
+                onMove={handleMove}
                 onLoad={handleLoad}
             >
                 <NavigationControl position="bottom-left" showCompass={false} />
-                <H3Layer />
+                <H3Layer currentZoom={zoom} />
             </Map>
         </div>
     );
