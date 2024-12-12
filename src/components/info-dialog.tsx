@@ -1,18 +1,17 @@
 import { Suspense, useMemo, useRef, useState } from "react";
 
 import axios from "axios";
-import { useAtom } from "jotai";
-import { latLngToCell } from "h3-js";
+import { useSetAtom } from "jotai";
+import { latLngToCell, cellToLatLng } from "h3-js";
 
 import { UserData } from "@/types/user";
 import { LANGUAGES } from "@/lib/languages";
-import { refreshAtom } from "@/jotai/atoms";
+import { locationAtom } from "@/jotai/atoms";
 import { H3_RESOLUTION } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
     Select,
     SelectContent,
@@ -40,8 +39,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPinPlus } from "lucide-react";
+import { Loader2, MapPin, Navigation } from "lucide-react";
 import {
     Tooltip,
     TooltipContent,
@@ -49,18 +47,23 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-const InfoDialog = ({ userData }: { userData: UserData | null }) => {
+interface InfoDialogProps {
+    userData: UserData | null;
+    setUserData: (userData: UserData) => void;
+}
+
+const InfoDialog = ({ userData, setUserData }: InfoDialogProps) => {
     const { toast } = useToast();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [location, setLocation] = useState("");
+    const [h3Location, setH3Location] = useState("");
     const [language, setLanguage] = useState("");
     const formRef = useRef<HTMLFormElement>(null);
-    const [, setRefresh] = useAtom(refreshAtom);
+    const setMapLocation = useSetAtom(locationAtom);
 
     const handleDialogChange = (open: boolean) => {
         setIsDialogOpen(open);
         setLanguage("");
-        setLocation("");
+        setH3Location("");
     };
 
     const handleFormSubmit = async (e: React.FormEvent) => {
@@ -74,16 +77,32 @@ const InfoDialog = ({ userData }: { userData: UserData | null }) => {
             const response = await axios.post(
                 `/api/users/${userData.id}/updatepoint`,
                 {
-                    h3Index: location,
+                    h3Index: h3Location,
                     language,
                 }
             );
+
+            setUserData({
+                ...userData,
+                h3Index: h3Location,
+                favoriteLanguage: language,
+            });
+
+            const [lat, lng] = cellToLatLng(h3Location);
+            setMapLocation({
+                lat,
+                lng,
+                zoom: 10,
+            });
 
             toast({
                 description:
                     response.data.message || "Data saved successfully!",
             });
-            setRefresh((prev) => !prev);
+
+            setH3Location("");
+            setLanguage("");
+            setIsDialogOpen(false);
         } catch {
             toast({
                 description: "Failed to save data. Please try again.",
@@ -100,7 +119,12 @@ const InfoDialog = ({ userData }: { userData: UserData | null }) => {
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <Button size="icon" variant="ghost">
-                                <MapPinPlus />
+                                <MapPin
+                                    style={{
+                                        height: "22px",
+                                        width: "22px",
+                                    }}
+                                />
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent>
@@ -111,64 +135,34 @@ const InfoDialog = ({ userData }: { userData: UserData | null }) => {
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Point</DialogTitle>
+                    <DialogTitle>Manage Point</DialogTitle>
                     <DialogDescription>
-                        Manage your favorite language on the map here.
+                        Update your favorite programming language on the map.
                     </DialogDescription>
                 </DialogHeader>
-                <CurrentContent userData={userData} />
-                <Card className="p-3">
-                    <CardHeader className="p-0">
-                        <CardTitle className="p-0 ">Update Point</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-0">
-                        <Suspense fallback={<div>Loading...</div>}>
-                            <UpdateContent
-                                formRef={formRef}
-                                location={location}
-                                setLocation={setLocation}
-                                setLanguage={setLanguage}
-                                handleFormSubmit={handleFormSubmit}
-                                languages={memoizedLanguages}
-                            />
-                        </Suspense>
-                    </CardContent>
-                    <Footer
-                        toast={toast}
-                        handleDialogChange={handleDialogChange}
-                        location={location}
-                        language={language}
+
+                <Suspense fallback={<div>Loading...</div>}>
+                    <UpdateContent
+                        formRef={formRef}
+                        location={h3Location}
+                        setLocation={setH3Location}
+                        setLanguage={setLanguage}
                         handleFormSubmit={handleFormSubmit}
+                        languages={memoizedLanguages}
                     />
-                </Card>
+                </Suspense>
+
+                <Footer
+                    toast={toast}
+                    handleDialogChange={handleDialogChange}
+                    location={h3Location}
+                    language={language}
+                    handleFormSubmit={handleFormSubmit}
+                />
             </DialogContent>
         </Dialog>
     );
 };
-
-const CurrentContent = ({ userData }: { userData: UserData | null }) => (
-    <div>
-        <div className="flex flex-row items-center w-full gap-3">
-            <Avatar>
-                <AvatarImage
-                    src={`https://github.com/${userData?.username}.png`}
-                    alt={`@${userData?.username}`}
-                />
-                <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
-            <div className="grid grid-cols-2 text-sm gap-0">
-                <p>{"Location: "}</p>
-                <p className="text-muted-foreground">
-                    {userData?.h3Index || "undefined"}
-                </p>
-                <p>Language: </p>
-                <p className="text-muted-foreground">
-                    {userData?.favoriteLanguage || "no language"}
-                </p>
-            </div>
-        </div>
-    </div>
-);
 
 const UpdateContent = ({
     formRef,
@@ -185,8 +179,11 @@ const UpdateContent = ({
     handleFormSubmit: (e: React.FormEvent) => void;
     languages: string[];
 }) => {
+    const [isLoading, setIsLoading] = useState(false);
+
     const handleGetLocation = () => {
         if ("geolocation" in navigator) {
+            setIsLoading(true);
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     const { latitude, longitude } = position.coords;
@@ -196,8 +193,12 @@ const UpdateContent = ({
                         H3_RESOLUTION
                     );
                     setLocation(h3Index);
+                    setIsLoading(false);
                 },
-                (error) => console.log(error)
+                (error) => {
+                    console.log(error);
+                    setIsLoading(false);
+                }
             );
         }
     };
@@ -211,7 +212,7 @@ const UpdateContent = ({
             <div className="grid grid-cols-5 items-center gap-2">
                 <Label
                     htmlFor="location"
-                    className="flex col-span-1 justify-end"
+                    className="flex col-span-1 justify-end font-semibold"
                 >
                     Location
                 </Label>
@@ -227,12 +228,16 @@ const UpdateContent = ({
                     onClick={handleGetLocation}
                     className="col-span-1"
                 >
-                    Get
+                    {isLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                        <Navigation className="h-4 w-4 mr-1" />
+                    )}
                 </Button>
 
                 <Label
                     htmlFor="language"
-                    className=" col-span-1 flex justify-end"
+                    className=" col-span-1 flex justify-end font-semibold"
                 >
                     Language
                 </Label>
