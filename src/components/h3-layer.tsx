@@ -2,9 +2,8 @@ import { useEffect, useState } from "react";
 
 import axios from "axios";
 import { useAtom } from "jotai";
-import { cellToBoundary, cellToLatLng } from "h3-js";
-import { Layer, Source, Marker } from "react-map-gl";
-import Image from 'next/image';
+import { cellToBoundary } from "h3-js";
+import { Layer, Source } from "react-map-gl";
 
 import { refreshAtom } from "@/jotai/atoms";
 import { LANGUAGE_COLOR } from "@/lib/languages";
@@ -19,7 +18,7 @@ interface H3LayerProps {
     currentZoom: number;
 }
 
-const H3Layer: React.FC<H3LayerProps> = ({ currentZoom }) => {
+const H3Layer: React.FC<H3LayerProps> = () => {
     const [refresh] = useAtom(refreshAtom);
     const [h3Cells, setH3Cells] = useState<H3Cell[]>([]);
 
@@ -71,11 +70,11 @@ const H3Layer: React.FC<H3LayerProps> = ({ currentZoom }) => {
         };
     });
 
-    const getIconSize = (zoom: number) => {
-        const baseSize = 40;
-        const scale = Math.pow(0.8, 12 - zoom);
-        return Math.max(20, Math.min(baseSize * scale, 60));
-    };
+    // const getIconSize = (zoom: number) => {
+    //     const baseSize = 40;
+    //     const scale = Math.pow(0.8, 12 - zoom);
+    //     return Math.max(20, Math.min(baseSize * scale, 60));
+    // };
 
     return (
         <>
@@ -95,8 +94,8 @@ const H3Layer: React.FC<H3LayerProps> = ({ currentZoom }) => {
                     }}
                 />
             </Source>
-
-            {currentZoom >= 8 &&
+            {/* 
+            {currentZoom >= 10 &&
                 h3Cells.map((cell) => {
                     const [lat, lng] = cellToLatLng(cell.index);
                     const iconSize = getIconSize(currentZoom);
@@ -108,7 +107,7 @@ const H3Layer: React.FC<H3LayerProps> = ({ currentZoom }) => {
                                 style={{
                                     width: `${iconSize}px`,
                                     height: `${iconSize}px`,
-                                    position: 'relative'
+                                    position: "relative",
                                 }}
                             >
                                 <Image
@@ -116,14 +115,14 @@ const H3Layer: React.FC<H3LayerProps> = ({ currentZoom }) => {
                                     alt={cell.dominantLanguage}
                                     fill
                                     style={{
-                                        filter: 'drop-shadow(1px 1px 1px rgba(0,0,0,0.3)'
+                                        filter: "drop-shadow(1px 1px 1px rgba(0,0,0,0.3)",
                                     }}
                                     unoptimized
                                 />
                             </div>
                         </Marker>
                     );
-                })}
+                })} */}
         </>
     );
 };
